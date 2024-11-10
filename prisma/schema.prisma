@@ -1,0 +1,40 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// datasource db {
+//   provider = "sqlite"
+//   url      = env("DATABASE_URL")
+// }
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("POSTGRES_PRISMA_URL") // uses connection pooling
+  directUrl = env("POSTGRES_URL_NON_POOLING") // uses a direct connection
+}
+
+model Habit {
+  id              String            @id @default(cuid())
+  name            String            @unique
+  times           Int
+  Activity        Activity[]
+  WeekAdjustments WeekAdjustments[]
+}
+
+model Activity {
+  id      String   @id @default(cuid())
+  habit   Habit    @relation(fields: [habitId], references: [id])
+  habitId String
+  day     DateTime
+}
+
+model WeekAdjustments {
+  id              String @id @default(cuid())
+  weekNumber      Int
+  habit           Habit  @relation(fields: [habitId], references: [id])
+  habitId         String
+  timesDifference Int
+}
